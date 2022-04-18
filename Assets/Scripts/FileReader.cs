@@ -13,8 +13,9 @@ public class FileReader : MonoBehaviour
     [SerializeField] private float zoomOutSpeed;
     [SerializeField] private float zoomFactor;
     [SerializeField] private float unitMoveFactor;
+    [SerializeField] private float readingTime;
     // read data every 3 seconds
-    private WaitForSeconds waitForSeconds = new WaitForSeconds(3f);
+    private WaitForSeconds waitForSeconds;
     private bool isDataRead;
     private Vector3 cameraOriginPos;
     private float cameraOriginFOV;
@@ -27,6 +28,7 @@ public class FileReader : MonoBehaviour
         cameraOriginPos = Camera.main.transform.position;
         cameraOriginFOV = Camera.main.fieldOfView;
         tmp_CameraFOV = cameraOriginFOV;
+        waitForSeconds = new WaitForSeconds(readingTime);
     }
 
     private enum CameraDirection
