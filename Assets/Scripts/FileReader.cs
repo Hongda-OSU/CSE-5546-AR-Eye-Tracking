@@ -26,7 +26,7 @@ public class FileReader : MonoBehaviour
     private void Awake()
     {
         // file name to read from the directory
-        fileName = "test.txt";
+        // fileName = "test.txt";
         cameraOriginPos = Camera.main.transform.position;
         cameraOriginFOV = Camera.main.fieldOfView;
         tmp_CameraFOV = cameraOriginFOV;
