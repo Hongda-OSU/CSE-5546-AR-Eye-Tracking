@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class AutoZoomByPoint : MonoBehaviour
 {
+    // Author: Hongda Lin
+
     // Use [a,b] [c,d] value of the important portion in image
     // Calculate the center point
     // Change the center point position relative to screen position
@@ -10,6 +12,13 @@ public class AutoZoomByPoint : MonoBehaviour
     public float zoomSpeed;
     public float minZoom;
     public float maxZoom;
+
+    private Vector3 cameraOriginPos;
+
+    void Awake()
+    {
+        cameraOriginPos = Camera.main.transform.position;
+    }
 
     void Update()
     {
@@ -35,21 +44,28 @@ public class AutoZoomByPoint : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, Scrolldirection, Input.GetAxis("Mouse ScrollWheel") * step);
         }
+        if (Input.GetKey(KeyCode.R))
+        {
+            RecoverImage();
+        }
     
     }
 
+    // Slerp Camera position back to origin position
     private void RecoverImage()
     {
-
+        Camera.main.transform.position = Vector3.Slerp(Camera.main.transform.position, cameraOriginPos, zoomSpeed * Time.deltaTime);
     }
 
-    private Vector2 CalculateFocusPoint()
+    // calculate the center point of important area
+    private Vector2 CalculateFocusPoint(Vector2 p1, Vector2 p2)
     {
-        return Vector2.one;
+        return new Vector2((p1.x + p2.x)/2, (p1.y + p2.y) / 2);
     }
 
+    // convert the point on image(world) to point on image(screen position)
     private Vector2 PointTransfer(Vector2 centerPoint)
     {
-        return Vector2.one;
+        return Camera.main.WorldToScreenPoint(new Vector3(centerPoint.x, centerPoint.y, 0));
     }
 }
