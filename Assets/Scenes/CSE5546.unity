@@ -315,10 +315,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fileName: test.txt
   moveSpeed: 10
-  zoomInSpeed: 10
-  zoomOutSpeed: 10
-  zoomFactor: 10
-  unitMove: 10
+  zoomInSpeed: 50
+  zoomOutSpeed: 50
+  zoomFactor: 0.5
+  unitMoveFactor: 10
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

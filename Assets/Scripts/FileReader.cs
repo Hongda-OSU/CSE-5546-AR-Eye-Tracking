@@ -12,11 +12,10 @@ public class FileReader : MonoBehaviour
     [SerializeField] private float zoomInSpeed;
     [SerializeField] private float zoomOutSpeed;
     [SerializeField] private float zoomFactor;
-    [SerializeField] private float unitMove;
+    [SerializeField] private float unitMoveFactor;
     // read data every 3 seconds
     private WaitForSeconds waitForSeconds = new WaitForSeconds(3f);
     private bool isDataRead;
-    private bool rewriteData;
     private Vector3 cameraOriginPos;
     private float cameraOriginFOV;
     private float tmp_CameraFOV;
@@ -40,7 +39,7 @@ public class FileReader : MonoBehaviour
     void Start()
     {
         // test writing data
-         //StartCoroutine(WriteDataToFileForTest());
+        StartCoroutine(WriteDataToFileForTest());
 
         // Read data from file every waitForSeconds
         StartCoroutine(ReadDataFromFile());
@@ -81,51 +80,82 @@ public class FileReader : MonoBehaviour
     private void CameraMoveLeft()
     {
         Camera.main.transform.position =
-            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position - new Vector3(unitMove, 0, 0),
+            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position - new Vector3(unitMoveFactor, 0, 0),
                 moveSpeed * Time.deltaTime);
     }
 
     private void CameraMoveRight()
     {
         Camera.main.transform.position =
-            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position + new Vector3(unitMove, 0, 0),
+            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position + new Vector3(unitMoveFactor, 0, 0),
                 moveSpeed * Time.deltaTime);
     }
 
     private void CameraMoveUp()
     {
         Camera.main.transform.position =
-            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position - new Vector3(0, unitMove, 0),
+            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position - new Vector3(0, unitMoveFactor, 0),
                 moveSpeed * Time.deltaTime);
     }
 
     private void CameraMoveDown()
     {
         Camera.main.transform.position =
-            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position + new Vector3(0, unitMove, 0),
+            Vector3.Slerp(Camera.main.transform.position, Camera.main.transform.position + new Vector3(0, unitMoveFactor, 0),
                 moveSpeed * Time.deltaTime);
     }
 
     private void CameraZoomIn()
     {
-        float tmp_RefCameraFOV = 0f;
-        tmp_CameraFOV -= zoomFactor;
-        Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
-            tmp_CameraFOV,
-            ref tmp_RefCameraFOV,
-            Time.deltaTime * zoomInSpeed);
+        StartCoroutine(ZoomIn());
     }
 
     private void CameraZoomOut()
     {
-        float tmp_RefCameraFOV = 0f;
-        tmp_CameraFOV += zoomFactor;
-        if (tmp_RefCameraFOV >= cameraOriginFOV)
-            tmp_RefCameraFOV = cameraOriginFOV;
-        Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
-            tmp_CameraFOV,
-            ref tmp_RefCameraFOV,
-            Time.unscaledDeltaTime * zoomOutSpeed);
+        StartCoroutine(ZoomOut());
+    }
+
+    private IEnumerator ZoomIn()
+    {
+        if (tmp_CameraFOV - zoomFactor < 10f)
+        {
+            yield break;
+        }
+        for (float i = 0; i <= 1f; i += zoomInSpeed * Time.deltaTime)
+        {
+            float tmp_RefCameraFOV = 0f;
+            tmp_CameraFOV -= zoomFactor;
+            Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
+                tmp_CameraFOV,
+                ref tmp_RefCameraFOV,
+                Time.deltaTime );
+            yield return null;
+        }
+    }
+
+    private IEnumerator ZoomOut()
+    {
+        if (tmp_CameraFOV + zoomFactor >= cameraOriginFOV)
+        {
+            RestoreCameraPos();
+            yield break;
+        }
+        for (float i = 0; i <= 1f; i += zoomOutSpeed * Time.deltaTime)
+        {
+            float tmp_RefCameraFOV = 0f;
+            tmp_CameraFOV += zoomFactor;
+            Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
+                tmp_CameraFOV,
+                ref tmp_RefCameraFOV,
+                Time.deltaTime);
+            yield return null;
+        }
+    }
+
+    private void RestoreCameraPos()
+    {
+        Camera.main.transform.position = Vector3.Slerp(Camera.main.transform.position, cameraOriginPos, moveSpeed * Time.deltaTime);
+        Camera.main.fieldOfView = cameraOriginFOV;
     }
 
     [MenuItem("Tools/Read file")]
@@ -154,7 +184,7 @@ public class FileReader : MonoBehaviour
         string path = Application.persistentDataPath + "/" + fileName;
         string[] lines = File.ReadAllLines(path);
         if (lines.Length == 0) return;
-        //Debug.Log(lines[lines.Length - 1]);
+        Debug.Log(lines[lines.Length - 1]);
         isDataRead = Enum.TryParse(lines[lines.Length - 1], out CameraDirection cameraDirection);
     }
 
@@ -163,7 +193,7 @@ public class FileReader : MonoBehaviour
     {
         string path = Application.persistentDataPath + "/" + fileName;
         //Write some text to the test.txt file, if append mode is false then rewrite data
-        StreamWriter writer = new StreamWriter(path, rewriteData);
+        StreamWriter writer = new StreamWriter(path, true);
         cameraDirection = (CameraDirection)Random.Range(0, System.Enum.GetValues(typeof(CameraDirection)).Length);
         writer.WriteLine(cameraDirection.ToString());
         writer.Close();
