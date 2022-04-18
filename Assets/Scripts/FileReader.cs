@@ -39,7 +39,7 @@ public class FileReader : MonoBehaviour
     void Start()
     {
         // test writing data
-        StartCoroutine(WriteDataToFileForTest());
+        //StartCoroutine(WriteDataToFileForTest());
 
         // Read data from file every waitForSeconds
         StartCoroutine(ReadDataFromFile());
