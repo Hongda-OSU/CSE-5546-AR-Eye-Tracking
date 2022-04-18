@@ -20,8 +20,6 @@ public class FileReader : MonoBehaviour
     private Vector3 cameraOriginPos;
     private float cameraOriginFOV;
     private float tmp_CameraFOV;
-    private IEnumerator zoomInCoroutine;
-    private IEnumerator zoomOutCoroutine;
 
     private void Awake()
     {
@@ -30,8 +28,6 @@ public class FileReader : MonoBehaviour
         cameraOriginPos = Camera.main.transform.position;
         cameraOriginFOV = Camera.main.fieldOfView;
         tmp_CameraFOV = cameraOriginFOV;
-        zoomInCoroutine = ZoomIn();
-        zoomOutCoroutine = ZoomOut();
     }
 
     private enum CameraDirection
@@ -112,64 +108,24 @@ public class FileReader : MonoBehaviour
 
     private void CameraZoomIn()
     {
-        if (zoomInCoroutine == null)
-        {
-            zoomInCoroutine = ZoomIn();
-            StartCoroutine(zoomInCoroutine);
-        }
-        else
-        {
-            StopCoroutine(zoomInCoroutine);
-            zoomInCoroutine = null;
-            zoomInCoroutine = ZoomIn();
-            StartCoroutine(zoomInCoroutine);
-        }
+        float tmp_RefCameraFOV = 0f;
+        tmp_CameraFOV -= zoomFactor;
+        Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
+            tmp_CameraFOV,
+            ref tmp_RefCameraFOV,
+            Time.deltaTime * zoomInSpeed);
     }
 
     private void CameraZoomOut()
     {
-        if (zoomOutCoroutine == null)
-        {
-            zoomOutCoroutine = ZoomOut();
-            StartCoroutine(zoomOutCoroutine);
-        }
-        else
-        {
-            StopCoroutine(zoomOutCoroutine);
-            zoomOutCoroutine = null;
-            zoomOutCoroutine = ZoomOut();
-            StartCoroutine(zoomOutCoroutine);
-        }
-    }
-
-    private IEnumerator ZoomIn()
-    {
-        while (true)
-        {
-            yield return null;
-            float tmp_RefCameraFOV = 0f;
-            tmp_CameraFOV -= zoomFactor;
-            Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
-                tmp_CameraFOV,
-                ref tmp_RefCameraFOV,
-                Time.unscaledDeltaTime * 2);
-        }
-    }
-
-    private IEnumerator ZoomOut()
-    {
-        while (true)
-        {
-            yield return null;
-            float tmp_RefCameraFOV = 0f;
-            tmp_CameraFOV += zoomFactor;
-            if (tmp_RefCameraFOV >= cameraOriginFOV)
-                tmp_RefCameraFOV = cameraOriginFOV;
-            Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
-                tmp_CameraFOV,
-                ref tmp_RefCameraFOV,
-                Time.unscaledDeltaTime * 2);
-        }
+        float tmp_RefCameraFOV = 0f;
+        tmp_CameraFOV += zoomFactor;
+        if (tmp_RefCameraFOV >= cameraOriginFOV)
+            tmp_RefCameraFOV = cameraOriginFOV;
+        Camera.main.fieldOfView = Mathf.SmoothDamp(Camera.main.fieldOfView,
+            tmp_CameraFOV,
+            ref tmp_RefCameraFOV,
+            Time.unscaledDeltaTime * zoomOutSpeed);
     }
 
     [MenuItem("Tools/Read file")]
