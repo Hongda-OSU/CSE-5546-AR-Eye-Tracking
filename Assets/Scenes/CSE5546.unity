@@ -316,10 +316,10 @@ MonoBehaviour:
   fileName: test.txt
   moveSpeed: 10
   zoomInSpeed: 50
-  zoomOutSpeed: 50
+  zoomOutSpeed: 75
   zoomFactor: 0.5
   unitMoveFactor: 10
-  readingTime: 3
+  readingTime: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -782,4 +782,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1.7760253
+  m_AspectRatio: 2.0425866
